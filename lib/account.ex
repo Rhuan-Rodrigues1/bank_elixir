@@ -1,13 +1,21 @@
 defmodule Account do
   defstruct user: User, balance: 1000
 
+  @contas "contas.txt"
   def create(user) do
     cond do
       user.name == "" or user.email == "" -> {:error, "Cadastre um nome e um email"}
       true ->
-        %__MODULE__{user: user}
+        binary = [%__MODULE__{user: user} ++ search_accounts()]
+        |> :erlang.term_to_binary()
+        File.write(@contas, binary)
 
     end
+  end
+
+  def search_accounts() do
+    {:ok, binary} = File.read(@contas)
+    :erlang.binary_to_term(binary)
   end
 
   def deposit(userAccount, value) do
